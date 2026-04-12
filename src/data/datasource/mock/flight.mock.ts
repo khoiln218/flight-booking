@@ -1,0 +1,26 @@
+export const flights = [
+  {
+    id: "FL001",
+    airline: "Vietnam Airlines",
+    from: "SGN",
+    to: "HAN",
+    departureTime: "2026-04-20T08:00:00",
+    arrivalTime: "2026-04-20T10:00:00",
+    price: 1200000,
+    duration: "2h",
+    stops: 0,
+    seatsAvailable: 20,
+  },
+  {
+    id: "FL002",
+    airline: "VietJet Air",
+    from: "SGN",
+    to: "HAN",
+    departureTime: "2026-04-20T12:00:00",
+    arrivalTime: "2026-04-20T14:30:00",
+    price: 900000,
+    duration: "2h30m",
+    stops: 0,
+    seatsAvailable: 15,
+  },
+];
