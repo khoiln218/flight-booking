@@ -9,13 +9,18 @@ export type LoginPayload = {
 export type RegisterPayload = {
     email: string;
     password: string;
-    name: string;
+    fullName: string;
+    phone: string;
 };
 
 export type User = {
-    name: string;
+    id: string;
     email: string;
+    fullName: string;
+    phone: string;
     role: string;
+    createdAt: string;
+
 };
 
 export type AuthResponse = {
@@ -25,11 +30,11 @@ export type AuthResponse = {
 
 // ✅ Service
 export const login = async (data: LoginPayload): Promise<AuthResponse> => {
-    return authDataSource.loginMock(data);
+    return authDataSource.login(data);
 };
 
 export const register = async (
     data: RegisterPayload
 ): Promise<AuthResponse> => {
-    return authDataSource.registerMock(data);
+    return authDataSource.register(data);
 };

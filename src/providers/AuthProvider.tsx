@@ -7,7 +7,10 @@ type Props = {
 };
 
 export default function AuthProvider({ children }: Props): JSX.Element {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        const storedUser = localStorage.getItem("user");
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
 
     useEffect(() => {
         if (user) {
@@ -19,13 +22,13 @@ export default function AuthProvider({ children }: Props): JSX.Element {
 
     const loginUser = (data: AuthResponse) => {
         setUser(data.user);
-        localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.clear();
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
     };
 
     return (
