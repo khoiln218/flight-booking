@@ -1,5 +1,3 @@
-import * as flightMock from "./mock/flight.api.mock";
-import * as authMock from "./auth.api";
+import * as auth from "./auth.api";
 
-export const flightDataSource = flightMock;
-export const authDataSource = authMock;
+export const authDataSource = auth;

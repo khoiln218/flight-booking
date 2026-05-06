@@ -1,5 +1,3 @@
-import { flightDataSource } from "../data/datasource";
-
 // ✅ Types
 export type FlightParams = {
   from: string;
@@ -18,13 +16,19 @@ export type Flight = {
 
 // ✅ Service
 export const getFlights = async (
-  params: FlightParams
 ): Promise<Flight[]> => {
-  return flightDataSource.getFlightsMock(params);
+  return [];
 };
 
 export const getFlightDetail = async (
   id: string
 ): Promise<Flight> => {
-  return flightDataSource.getFlightDetailMock(id);
+  return {
+    id,
+    airline: "",
+    from: "",
+    to: "",
+    departureTime: "",
+    price: 0
+  };
 };

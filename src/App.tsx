@@ -1,9 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthProvider from "./providers/AuthProvider";
-import Flights from "./pages/Flights";
-import Login from "./pages/Login";
-import Profile from "./pages/Profile";
+import Login from "./pages/LoginPage.tsx";
+import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import FlightResultsPage from "./pages/FlightResultsPage";
+import SeatBookingPage from "./pages/SeatBookingPage.tsx";
+import BookingConfirmPage from "./pages/BookingConfirmPage.tsx";
+import SuccessPage from "./pages/SuccessPage.tsx";
+import PaymentPage from "./pages/PaymentPage";
+import FlightsPage from "./pages/FlightsPage.tsx";
+import BookingHistoryPage from "./pages/BookingHistoryPage.tsx";
 
 function App() {
   return (
@@ -11,14 +17,60 @@ function App() {
       <AuthProvider>
         <Routes>
           {/* Public */}
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={<Login />} />
 
           {/* Private */}
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <Flights />
+                <FlightsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/flights"
+            element={
+              <ProtectedRoute>
+                <FlightResultsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/booking"
+            element={
+              <ProtectedRoute>
+                <SeatBookingPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/confirm"
+            element={
+              <ProtectedRoute>
+                <BookingConfirmPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/payment"
+            element={
+              <ProtectedRoute>
+                <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/success"
+            element={
+              <ProtectedRoute>
+                <SuccessPage />
               </ProtectedRoute>
             }
           />
@@ -27,10 +79,20 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <Profile />
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <BookingHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+
         </Routes>
       </AuthProvider>
     </BrowserRouter>
