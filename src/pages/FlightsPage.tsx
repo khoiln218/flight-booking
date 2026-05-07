@@ -83,46 +83,48 @@ export default function FlightsPage(): JSX.Element {
             </div>
 
             {/* 🧠 HISTORY */}
-            <div style={styles.card}>
-                <div style={styles.title}>🕘 Lịch sử tìm kiếm</div>
+            {history.length > 0 && (
+                <div style={styles.card}>
+                    <div style={styles.title}>🕘 Lịch sử tìm kiếm</div>
 
-                {history.length === 0 ? (
-                    <p style={styles.empty}>Chưa có lịch sử</p>
-                ) : (
-                    history.map((item, index) => (
-                        <div
-                            key={index}
-                            style={styles.historyItem}
-                            onMouseEnter={(e) =>
-                                Object.assign(e.currentTarget.style, styles.historyHover)
-                            }
-                            onMouseLeave={(e) =>
-                                Object.assign(e.currentTarget.style, {
-                                    background: "#fff",
-                                    transform: "none",
-                                })
-                            }
-                            onClick={() => handleSelectHistory(item)}
-                        >
-                            <div style={styles.historyLeft}>
-                                <div style={styles.icon}>✈️</div>
-                                <div>
-                                    <div style={styles.route}>
-                                        {item.from} → {item.to}
-                                    </div>
-                                    <div style={styles.date}>
-                                        {formatDate(new Date(item.date))}
+                    {history.length === 0 ? (
+                        <p style={styles.empty}>Chưa có lịch sử</p>
+                    ) : (
+                        history.map((item, index) => (
+                            <div
+                                key={index}
+                                style={styles.historyItem}
+                                onMouseEnter={(e) =>
+                                    Object.assign(e.currentTarget.style, styles.historyHover)
+                                }
+                                onMouseLeave={(e) =>
+                                    Object.assign(e.currentTarget.style, {
+                                        background: "#fff",
+                                        transform: "none",
+                                    })
+                                }
+                                onClick={() => handleSelectHistory(item)}
+                            >
+                                <div style={styles.historyLeft}>
+                                    <div style={styles.icon}>✈️</div>
+                                    <div>
+                                        <div style={styles.route}>
+                                            {item.from} → {item.to}
+                                        </div>
+                                        <div style={styles.date}>
+                                            {formatDate(new Date(item.date))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div style={{ color: "#00a8ff", fontSize: "14px", paddingRight: "16px" }}>
-                                Chọn
+                                <div style={{ color: "#00a8ff", fontSize: "14px", paddingRight: "16px" }}>
+                                    Chọn
+                                </div>
                             </div>
-                        </div>
-                    ))
-                )}
-            </div>
+                        ))
+                    )}
+                </div>
+            )}
         </div>
     );
 }
