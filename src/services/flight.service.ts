@@ -1,24 +1,10 @@
-// ✅ Types
-export type FlightParams = {
-  from: string;
-  to: string;
-  maxPrice?: number;
-};
+import type { Flight } from "../hooks/useFlights";
 
-export type Flight = {
-  id: string;
-  airline: string;
-  from: string;
-  to: string;
-  departureTime: string;
-  price: number;
-};
-
-// ✅ Service
 export const getFlights = async (
 ): Promise<Flight[]> => {
   return [];
 };
+
 
 export const getFlightDetail = async (
   id: string
@@ -28,7 +14,9 @@ export const getFlightDetail = async (
     airline: "",
     from: "",
     to: "",
+    date: "",
     departureTime: "",
+    arrivalTime: "",
     price: 0
   };
 };

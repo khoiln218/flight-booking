@@ -1,21 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import type { Flight } from "../hooks/useFlights";
+import type { BookingState } from "../hooks/useFlights";
 import Navbar from "../components/Nav";
+import { formatDate } from "../utils/AppConverter";
 
-type Seat = {
-    row: string;
-    col: number;
-    price: number;
-};
-
-type BookingState = {
-    flight: Flight;
-    selectedSeats: Seat[];
-    totalPrice: number;
-};
-
-export default function PaymentPage() {
+export default function BookingPaymentPage() {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -46,13 +35,14 @@ export default function PaymentPage() {
     if (!flight) return <p>Không có dữ liệu thanh toán</p>;
 
     return (
-        <div style={{ padding: "20px" }}>
+        <div style={{ textAlign: "left" }}>
             <Navbar />
-            <h2>Thanh toán 💳</h2>
+            <h2 style={{ margin: "20px 20px" }}>Thanh toán 💳</h2>
 
             {/* Thông tin chuyến */}
-            <div style={{ marginBottom: "20px" }}>
+            <div style={{ margin: "20px 20px" }}>
                 <p><b>Chuyến bay:</b> {flight.from} → {flight.to}</p>
+                <p><b>Ngày:</b> {formatDate(new Date(flight.date))}</p>
                 <p>
                     <b>Ghế:</b>{" "}
                     {selectedSeats?.map((s) => `${s.row}${s.col}`).join(", ")}
@@ -61,8 +51,8 @@ export default function PaymentPage() {
             </div>
 
             {/* Chọn phương thức */}
-            <div style={{ marginBottom: "20px" }}>
-                <h4>Chọn phương thức thanh toán:</h4>
+            <div style={{ margin: "20px 20px" }}>
+                <h4 style={{ marginBottom: "10px" }}>Chọn phương thức thanh toán:</h4>
 
                 <label>
                     <input
@@ -102,6 +92,7 @@ export default function PaymentPage() {
                 onClick={handlePayment}
                 disabled={loading}
                 style={{
+                    margin: "0px 20px",
                     padding: "10px 20px",
                     background: "green",
                     color: "#fff",

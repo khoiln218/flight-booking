@@ -1,18 +1,43 @@
 import { useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Nav";
+import type { SearchItem } from "../hooks/useFlights";
+import { formatDate } from "../utils/AppConverter";
 
 export default function FlightsPage(): JSX.Element {
+    const today = new Date().toISOString().split("T")[0];
+    const [date, setDate] = useState(today);
     const [from, setFrom] = useState<string>("");
     const [to, setTo] = useState<string>("");
-    const [date, setDate] = useState<string>("");
+    const [history, setHistory] = useState<SearchItem[]>(() => {
+        try {
+            return JSON.parse(localStorage.getItem("search_history") || "[]");
+        } catch {
+            return [];
+        }
+    });
     const navigate = useNavigate();
+
+    // 🔥 click lịch sử
+    const handleSelectHistory = (item: SearchItem) => {
+        navigate(
+            `/flights?from=${item.from}&to=${item.to}&date=${item.date}`
+        );
+    };
 
     const handleSearch = () => {
         if (!from || !to || !date) {
             alert("Vui lòng nhập đầy đủ thông tin!");
             return;
         }
+
+        const newItem = { from, to, date };
+
+        const newHistory = [newItem, ...history].slice(0, 5);
+
+        localStorage.setItem("search_history", JSON.stringify(newHistory));
+
+        setHistory(newHistory);
 
         navigate(`/flights?from=${from}&to=${to}&date=${date}`);
     };
@@ -56,18 +81,59 @@ export default function FlightsPage(): JSX.Element {
                     Tìm chuyến bay
                 </button>
             </div>
+
+            {/* 🧠 HISTORY */}
+            <div style={styles.card}>
+                <div style={styles.title}>🕘 Lịch sử tìm kiếm</div>
+
+                {history.length === 0 ? (
+                    <p style={styles.empty}>Chưa có lịch sử</p>
+                ) : (
+                    history.map((item, index) => (
+                        <div
+                            key={index}
+                            style={styles.historyItem}
+                            onMouseEnter={(e) =>
+                                Object.assign(e.currentTarget.style, styles.historyHover)
+                            }
+                            onMouseLeave={(e) =>
+                                Object.assign(e.currentTarget.style, {
+                                    background: "#fff",
+                                    transform: "none",
+                                })
+                            }
+                            onClick={() => handleSelectHistory(item)}
+                        >
+                            <div style={styles.historyLeft}>
+                                <div style={styles.icon}>✈️</div>
+                                <div>
+                                    <div style={styles.route}>
+                                        {item.from} → {item.to}
+                                    </div>
+                                    <div style={styles.date}>
+                                        {formatDate(new Date(item.date))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ color: "#00a8ff", fontSize: "14px", paddingRight: "16px" }}>
+                                Chọn
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
         </div>
     );
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-        padding: "20px"
-    },
     banner: {
+        marginTop: "30px",
         marginBottom: "30px",
         textAlign: "center",
     },
+
     header: {
         display: "flex",
         justifyContent: "space-between",
@@ -76,21 +142,25 @@ const styles: { [key: string]: React.CSSProperties } = {
         background: "#1976d2",
         color: "#fff",
     },
+
     menu: {
         display: "flex",
         gap: "10px",
     },
+
     form: {
         display: "flex",
         gap: "10px",
         justifyContent: "center",
         flexWrap: "wrap",
     },
+
     input: {
         padding: "10px",
         fontSize: "16px",
         width: "200px",
     },
+
     button: {
         padding: "10px 20px",
         fontSize: "16px",
@@ -98,5 +168,68 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: "#fff",
         border: "none",
         cursor: "pointer",
+    },
+
+    card: {
+        background: "#fff",
+        borderRadius: "16px",
+        padding: "20px",
+        margin: "50px 50px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    },
+
+    title: {
+        fontSize: "20px",
+        fontWeight: "700",
+        color: "#1e3a8a",
+    },
+
+    buttonHover: {
+        background: "#0090dd",
+    },
+
+    historyItem: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "12px",
+        borderRadius: "12px",
+        border: "1px solid #eee",
+        marginBottom: "10px",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        background: "#fff",
+        margin: "20px",
+    },
+
+    historyLeft: {
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+    },
+
+    icon: {
+        fontSize: "18px",
+        color: "#00a8ff",
+    },
+
+    route: {
+        fontWeight: "600",
+        fontSize: "15px",
+    },
+
+    date: {
+        fontSize: "12px",
+        color: "#888",
+    },
+
+    historyHover: {
+        background: "#e6f4ff",
+        transform: "translateY(-2px)",
+    },
+
+    empty: {
+        color: "#999",
+        fontStyle: "italic",
     },
 };

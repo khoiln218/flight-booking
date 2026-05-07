@@ -8,6 +8,7 @@ import {
 import { login } from "../services/auth.service";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Nav";
 
 type LoginForm = {
     email: string;
@@ -73,36 +74,29 @@ export default function LoginPage(): JSX.Element {
 
     return (
         <div style={styles.container}>
+            <Navbar />
             <form style={styles.form} onSubmit={handleSubmit}>
-                <h1 style={styles.title}>Đăng nhập</h1>
+                <h2 style={styles.title}>Đăng nhập</h2>
 
                 {error && <p style={styles.error}>{error}</p>}
 
-                <div style={styles.group}>
-                    <label>Email</label>
+                <input
+                    type="email"
+                    placeholder="Nhập email"
+                    value={form.email}
+                    onChange={handleChange("email")}
+                    style={styles.input}
+                    required
+                />
 
-                    <input
-                        type="email"
-                        placeholder="Nhập email"
-                        value={form.email}
-                        onChange={handleChange("email")}
-                        style={styles.input}
-                        required
-                    />
-                </div>
-
-                <div style={styles.group}>
-                    <label>Mật khẩu</label>
-
-                    <input
-                        type="password"
-                        placeholder="Nhập mật khẩu"
-                        value={form.password}
-                        onChange={handleChange("password")}
-                        style={styles.input}
-                        required
-                    />
-                </div>
+                <input
+                    type="password"
+                    placeholder="Nhập mật khẩu"
+                    value={form.password}
+                    onChange={handleChange("password")}
+                    style={styles.input}
+                    required
+                />
 
                 <button
                     type="submit"
@@ -119,50 +113,35 @@ export default function LoginPage(): JSX.Element {
 }
 
 const styles: Record<string, CSSProperties> = {
-    container: {
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#f4f6f8",
-    },
-
     form: {
-        width: 400,
+        width: 350,
+        maxWidth: "500px",
+        margin: "40px auto",
         background: "#fff",
-        padding: 30,
-        borderRadius: 12,
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    },
-
-    title: {
-        textAlign: "center",
-        marginBottom: 24,
-    },
-
-    group: {
+        borderRadius: "18px",
+        padding: "32px",
+        boxShadow:
+            "0 4px 20px rgba(0,0,0,0.08)",
         display: "flex",
         flexDirection: "column",
-        marginBottom: 16,
+        textAlign: "center",
     },
 
     input: {
-        padding: 12,
-        marginTop: 8,
-        borderRadius: 8,
+        marginBottom: 12,
+        padding: 10,
+        borderRadius: 6,
         border: "1px solid #ccc",
-        fontSize: 16,
     },
 
     button: {
-        width: "100%",
-        padding: 14,
+        padding: 12,
         border: "none",
-        borderRadius: 8,
+        borderRadius: 6,
         background: "#007bff",
         color: "#fff",
-        fontSize: 16,
         cursor: "pointer",
+        fontWeight: "bold",
     },
 
     error: {

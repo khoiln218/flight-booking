@@ -2,20 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type User = {
-    fullName?: string;
-    email?: string;
+    fullName: string;
+    email: string;
+    role: string;
 };
 
 export default function Navbar() {
     const navigate = useNavigate();
-
     const [showProfile, setShowProfile] = useState(false);
-
     const popupRef = useRef<HTMLDivElement>(null);
 
-    const user: User = JSON.parse(
-        localStorage.getItem("user") || "{}"
-    );
+    // lấy user từ localStorage
+    const user: User | null = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")!)
+        : null;
 
     // đóng popup khi click ra ngoài
     useEffect(() => {
@@ -29,25 +29,30 @@ export default function Navbar() {
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-
-        return () => {
+        return () =>
             document.removeEventListener(
                 "mousedown",
                 handleClickOutside
             );
-        };
     }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-
         navigate("/login");
     };
 
+    const getInitial = () =>
+        user?.fullName
+            ?.trim()
+            .split(" ")
+            .pop()
+            ?.charAt(0)
+            ?.toUpperCase() || "U";
+
     return (
         <nav style={styles.navbar}>
-            {/* LEFT */}
+            {/* LOGO */}
             <div
                 style={styles.logo}
                 onClick={() => navigate("/")}
@@ -57,85 +62,99 @@ export default function Navbar() {
 
             {/* RIGHT */}
             <div style={styles.rightSection}>
-
-                {/* Avatar */}
-                <div
-                    style={styles.avatarWrapper}
-                    ref={popupRef}
-                >
+                {user && user.fullName ? (
                     <div
-                        style={styles.avatar}
+                        style={styles.avatarWrapper}
+                        ref={popupRef}
+                    >
+                        {/* AVATAR */}
+                        <div
+                            style={styles.avatar}
+                            onClick={() =>
+                                setShowProfile(!showProfile)
+                            }
+                        >
+                            {getInitial()}
+                        </div>
+
+                        {/* POPUP */}
+                        {showProfile && (
+                            <div style={styles.popup}>
+                                {/* USER INFO */}
+                                <div style={styles.userSection}>
+                                    <div
+                                        style={
+                                            styles.popupAvatar
+                                        }
+                                    >
+                                        {getInitial()}
+                                    </div>
+
+                                    <div>
+                                        <h4
+                                            style={
+                                                styles.userName
+                                            }
+                                        >
+                                            {user.fullName}
+                                        </h4>
+                                        <p
+                                            style={
+                                                styles.userEmail
+                                            }
+                                        >
+                                            {user.email}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* MENU */}
+                                <div
+                                    style={styles.menuItem}
+                                    onClick={() => {
+                                        navigate("/history");
+                                        setShowProfile(false);
+                                    }}
+                                >
+                                    📜 Booking History
+                                </div>
+
+                                <div
+                                    style={styles.menuItem}
+                                    onClick={() => {
+                                        navigate("/profile");
+                                        setShowProfile(false);
+                                    }}
+                                >
+                                    👤 My Profile
+                                </div>
+
+                                {/* LOGOUT */}
+                                <div
+                                    style={styles.logoutButton}
+                                    onClick={handleLogout}
+                                >
+                                    🚪 Sign Out
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <button
+                        style={styles.loginButton}
                         onClick={() =>
-                            setShowProfile(!showProfile)
+                            navigate("/register")
                         }
                     >
-                        {user?.fullName?.trim()
-                            .split(" ")
-                            .pop()?.charAt(0)?.toUpperCase() ||
-                            "U"}
-                    </div>
-
-                    {/* POPUP */}
-                    {showProfile && (
-                        <div style={styles.popup}>
-                            {/* User Info */}
-                            <div style={styles.userSection}>
-                                <div style={styles.popupAvatar}>
-                                    {user?.fullName
-                                        ?.charAt(0)
-                                        ?.toUpperCase() || "U"}
-                                </div>
-
-                                <div>
-                                    <h4 style={styles.userName}>
-                                        {user?.fullName || "User"}
-                                    </h4>
-
-                                    <p style={styles.userEmail}>
-                                        {user?.email ||
-                                            "example@gmail.com"}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Menu */}
-                            <div
-                                style={styles.menuItem}
-                                onClick={() => {
-                                    navigate("/history");
-                                    setShowProfile(false);
-                                }}
-                            >
-                                📜 Booking History
-                            </div>
-
-                            <div
-                                style={styles.menuItem}
-                                onClick={() => {
-                                    navigate("/profile");
-                                    setShowProfile(false);
-                                }}
-                            >
-                                👤 My Profile
-                            </div>
-
-                            <div
-                                style={styles.logoutButton}
-                                onClick={handleLogout}
-                            >
-                                🚪 Sign Out
-                            </div>
-                        </div>
-                    )}
-                </div>
+                        Đăng ký
+                    </button>
+                )}
             </div>
         </nav>
     );
 }
 
-const styles: {
-    [key: string]: React.CSSProperties;
-} = {
+const styles: { [key: string]: React.CSSProperties } = {
     navbar: {
         height: "70px",
         backgroundColor: "#1976d2",
@@ -162,13 +181,14 @@ const styles: {
         gap: "16px",
     },
 
-    navButton: {
-        background: "transparent",
+    loginButton: {
+        background: "#fff",
+        color: "#1976d2",
         border: "none",
-        color: "#fff",
+        padding: "8px 14px",
+        borderRadius: "8px",
         cursor: "pointer",
-        fontSize: "15px",
-        fontWeight: 500,
+        fontWeight: "bold",
     },
 
     avatarWrapper: {
@@ -191,9 +211,10 @@ const styles: {
 
     popup: {
         position: "absolute",
+        textAlign: "left",
         top: "55px",
         right: 0,
-        width: "260px",
+        width: "320px",
         background: "#fff",
         borderRadius: "14px",
         overflow: "hidden",

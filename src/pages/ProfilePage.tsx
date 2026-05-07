@@ -1,12 +1,6 @@
 import type { JSX } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth, type User } from "../hooks/useAuth";
 import Navbar from "../components/Nav";
-
-type User = {
-  fullName: string;
-  email: string;
-  role: string;
-};
 
 type AuthContextType = {
   user: User | null;
@@ -18,15 +12,18 @@ export default function ProfilePage(): JSX.Element {
     useAuth() as AuthContextType;
 
   return (
-    <div style={styles.page}>
+    <div style={styles.container}>
       {/* Navbar */}
       <Navbar />
 
       {/* Content */}
-      <div style={styles.container}>
+      <div style={styles.content}>
         {/* Avatar */}
         <div style={styles.avatar}>
-          {user?.fullName?.charAt(0)}
+          {user?.fullName?.trim()
+            .split(" ")
+            .pop()?.charAt(0)?.toUpperCase() ||
+            "U"}
         </div>
 
         <h2 style={styles.title}>
@@ -81,11 +78,8 @@ export default function ProfilePage(): JSX.Element {
 const styles: {
   [key: string]: React.CSSProperties;
 } = {
-  page: {
-    padding: "20px",
-  },
 
-  container: {
+  content: {
     maxWidth: "500px",
     margin: "40px auto",
     background: "#fff",

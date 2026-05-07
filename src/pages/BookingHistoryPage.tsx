@@ -1,165 +1,179 @@
-// BookingHistoryPage.tsx
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import Navbar from "../components/Nav";
-
-type BookingStatus =
-    | "BOOKED"
-    | "CANCELLED"
-    | "USED";
-
-type BookingSeat = {
-    row: number;
-    col: string;
-};
-
-type Booking = {
-    id: number;
-    flightCode: string;
-    from: string;
-    to: string;
-    departureTime: string;
-    totalPrice: number;
-    seats: BookingSeat[];
-    status: BookingStatus;
-};
+import { formatDate } from "../utils/AppConverter";
+import type { Booking, BookingStatus } from "../hooks/useFlights";
 
 export default function BookingHistoryPage(): JSX.Element {
-    const [bookings, setBookings] = useState<Booking[]>([
-        {
-            id: 1,
-            flightCode: "VN123",
-            from: "Hồ Chí Minh",
-            to: "Hà Nội",
-            departureTime: "2026-05-10 08:30",
-            totalPrice: 2500000,
-            seats: [
-                { col: "A", row: 1 },
-                { col: "A", row: 2 },
-            ],
-            status: "BOOKED",
-        },
-        {
-            id: 2,
-            flightCode: "VJ888",
-            from: "Đà Nẵng",
-            to: "Phú Quốc",
-            departureTime: "2026-05-15 14:00",
-            totalPrice: 1800000,
-            seats: [{ col: "C", row: 5 }],
-            status: "USED",
-        }, {
-            id: 3,
-            flightCode: "VJ999",
-            from: "Đà Nẵng",
-            to: "Phú Quốc",
-            departureTime: "2026-05-15 14:00",
-            totalPrice: 1700000,
-            seats: [{ col: "C", row: 3 }],
-            status: "CANCELLED",
-        },
-    ]);
+    const isExpired = (departureTime: string) => {
+        return new Date(departureTime) < new Date();
+    };
 
-    const handleCancel = (id: number) => {
-        const updatedBookings: Booking[] = bookings.map((booking) =>
-            booking.id === id
-                ? { ...booking, status: "CANCELLED" }
-                : booking
+    const [bookings, setBookings] = useState<Booking[]>([]);
+
+    useEffect(() => {
+        const data: Booking[] = [
+            {
+                id: 1,
+                flightCode: "VN123",
+                from: "Hồ Chí Minh",
+                to: "Hà Nội",
+                departureTime: "2026-05-10 08:30",
+                totalPrice: 2500000,
+                seats: [
+                    { col: "A", row: 1 },
+                    { col: "A", row: 2 },
+                ],
+                status: "BOOKED",
+            },
+            {
+                id: 2,
+                flightCode: "VJ888",
+                from: "Đà Nẵng",
+                to: "Phú Quốc",
+                departureTime: "2026-05-15 14:00",
+                totalPrice: 1800000,
+                seats: [{ col: "C", row: 5 }],
+                status: "USED",
+            },
+            {
+                id: 3,
+                flightCode: "VJ999",
+                from: "Đà Nẵng",
+                to: "Phú Quốc",
+                departureTime: "2026-05-15 14:00",
+                totalPrice: 1700000,
+                seats: [{ col: "C", row: 3 }],
+                status: "CANCELLED",
+            },
+            {
+                id: 4,
+                flightCode: "VN123",
+                from: "Hồ Chí Minh",
+                to: "Hà Nội",
+                departureTime: "2024-05-10 08:30",
+                totalPrice: 2500000,
+                seats: [{ col: "A", row: 1 }],
+                status: "BOOKED",
+            },
+        ];
+
+        const updated = data.map((b) =>
+            isExpired(b.departureTime) && b.status === "BOOKED"
+                ? { ...b, status: "EXPIRED" as BookingStatus }
+                : b
         );
 
-        setBookings(updatedBookings);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setBookings(updated);
+    }, []);
+
+    const handleCancel = (id: number) => {
+        setBookings((prev) =>
+            prev.map((booking) =>
+                booking.id === id
+                    ? { ...booking, status: "CANCELLED" }
+                    : booking
+            )
+        );
     };
 
     return (
-        <>
+        <div style={styles.container}>
             <Navbar />
 
-            <div style={styles.container}>
-                <h1 style={styles.title}>Lịch Sử Đặt Vé</h1>
+            <h1 style={styles.title}>Lịch Sử Đặt Vé</h1>
 
-                {bookings.length === 0 ? (
-                    <p>Chưa có vé nào.</p>
-                ) : (
-                    <div style={styles.list}>
-                        {bookings.map((booking) => (
-                            <div key={booking.id} style={styles.card}>
-                                <div style={styles.header}>
-                                    <h2>{booking.flightCode}</h2>
+            {bookings.length === 0 ? (
+                <p>Chưa có vé nào.</p>
+            ) : (
+                <div style={styles.list}>
+                    {bookings.map((booking) => (
+                        <div key={booking.id} style={styles.card}>
+                            <div style={styles.header}>
+                                <h2>{booking.flightCode}</h2>
 
-                                    <span
-                                        style={{
-                                            ...styles.status,
-                                            backgroundColor:
-                                                booking.status === "BOOKED"
-                                                    ? "#22c55e"
-                                                    : booking.status === "USED"
-                                                        ? "#3b82f6"
-                                                        : "#ef4444",
-                                        }}
-                                    >
-                                        {booking.status === "BOOKED"
-                                            ? "Đã đặt"
-                                            : booking.status === "USED"
-                                                ? "Đã dùng"
+                                <span
+                                    style={{
+                                        ...styles.status,
+                                        backgroundColor:
+                                            booking.status === "BOOKED"
+                                                ? "#22c55e"
+                                                : booking.status === "USED"
+                                                    ? "#3b82f6"
+                                                    : booking.status === "EXPIRED"
+                                                        ? "#f59e0b"
+                                                        : "#9ca3af",
+                                    }}
+                                >
+                                    {booking.status === "BOOKED"
+                                        ? "Đã đặt"
+                                        : booking.status === "USED"
+                                            ? "Đã dùng"
+                                            : booking.status === "EXPIRED"
+                                                ? "Hết hạn"
                                                 : "Đã hủy"}
-                                    </span>
-                                </div>
+                                </span>
+                            </div>
 
-                                <p>
-                                    <b>Tuyến:</b> {booking.from} → {booking.to}
-                                </p>
+                            <p>
+                                <b>Tuyến:</b> {booking.from} → {booking.to}
+                            </p>
 
-                                <p>
-                                    <b>Khởi hành:</b> {booking.departureTime}
-                                </p>
+                            <p>
+                                <b>Khởi hành:</b> {booking.departureTime}
+                            </p>
 
-                                <p>
-                                    <b>Ghế:</b>{" "}
-                                    {booking.seats
-                                        .map((seat) => `${seat.row}${seat.col}`)
-                                        .join(", ")}
-                                </p>
+                            <p>
+                                <b>Ngày:</b>{" "}
+                                {formatDate(new Date(booking.departureTime))}
+                            </p>
 
-                                <p>
-                                    <b>Tổng tiền:</b>{" "}
-                                    {booking.totalPrice.toLocaleString("vi-VN")} VNĐ
-                                </p>
+                            <p>
+                                <b>Ghế:</b>{" "}
+                                {booking.seats
+                                    .map((seat) => `${seat.row}${seat.col}`)
+                                    .join(", ")}
+                            </p>
 
-                                {booking.status === "BOOKED" && (
+                            <p>
+                                <b>Tổng tiền:</b>{" "}
+                                {booking.totalPrice.toLocaleString("vi-VN")} VNĐ
+                            </p>
+
+                            {booking.status === "BOOKED" &&
+                                !isExpired(booking.departureTime) && (
                                     <button
                                         style={styles.cancelButton}
-                                        onClick={() => handleCancel(booking.id)}
+                                        onClick={() =>
+                                            handleCancel(booking.id)
+                                        }
                                     >
                                         Hủy vé
                                     </button>
                                 )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-        padding: "30px",
-        maxWidth: "900px",
-        margin: "0 auto",
-    },
-
     title: {
         fontSize: "32px",
         marginBottom: "20px",
     },
 
     list: {
+        margin: "30px",
         display: "flex",
         flexDirection: "column",
         gap: "20px",
     },
 
     card: {
+        textAlign: "left",
         border: "1px solid #ddd",
         borderRadius: "12px",
         padding: "20px",

@@ -4,12 +4,13 @@ import Login from "./pages/LoginPage.tsx";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FlightResultsPage from "./pages/FlightResultsPage";
-import SeatBookingPage from "./pages/SeatBookingPage.tsx";
+import BookingSeatPage from "./pages/BookingSeatPage.tsx";
 import BookingConfirmPage from "./pages/BookingConfirmPage.tsx";
-import SuccessPage from "./pages/SuccessPage.tsx";
-import PaymentPage from "./pages/PaymentPage";
+import BookingSuccessPage from "./pages/BookingSuccessPage.tsx";
+import BookingPaymentPage from "./pages/BookingPaymentPage.tsx";
 import FlightsPage from "./pages/FlightsPage.tsx";
 import BookingHistoryPage from "./pages/BookingHistoryPage.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx";
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
           <Route
             path="/login"
             element={<Login />} />
+
+          <Route
+            path="/register"
+            element={<RegisterPage />} />
 
           {/* Private */}
           <Route
@@ -43,7 +48,7 @@ function App() {
             path="/booking"
             element={
               <ProtectedRoute>
-                <SeatBookingPage />
+                <BookingSeatPage />
               </ProtectedRoute>
             }
           />
@@ -61,7 +66,7 @@ function App() {
             path="/payment"
             element={
               <ProtectedRoute>
-                <PaymentPage />
+                <BookingPaymentPage />
               </ProtectedRoute>
             }
           />
@@ -70,7 +75,7 @@ function App() {
             path="/success"
             element={
               <ProtectedRoute>
-                <SuccessPage />
+                <BookingSuccessPage />
               </ProtectedRoute>
             }
           />
