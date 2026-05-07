@@ -2,7 +2,7 @@ import { createContext } from "react";
 import type { AuthResponse } from "../services/auth.service";
 
 export type User = {
-    name: string;
+    fullName: string;
     email: string;
     role: string;
 };
