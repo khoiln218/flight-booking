@@ -14,7 +14,7 @@ export const login = async (
 };
 
 export const register = async (
-    payload: { email: string; password: string; fullName: string }
+    payload: { email: string; password: string; fullName: string; phone: string | "" }
 ): Promise<AuthResponse> => {
     const res = await api.post("/auth/register", payload);
     return res.data;

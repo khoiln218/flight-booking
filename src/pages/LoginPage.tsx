@@ -5,18 +5,13 @@ import {
     type CSSProperties,
 } from "react";
 
-import { login } from "../services/auth.service";
+import { login, type LoginPayload } from "../services/auth.service";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Nav";
 
-type LoginForm = {
-    email: string;
-    password: string;
-};
-
 export default function LoginPage(): JSX.Element {
-    const [form, setForm] = useState<LoginForm>({
+    const [form, setForm] = useState<LoginPayload>({
         email: "",
         password: "",
     });
@@ -28,7 +23,7 @@ export default function LoginPage(): JSX.Element {
     const navigate = useNavigate();
 
     const handleChange =
-        (field: keyof LoginForm) =>
+        (field: keyof LoginPayload) =>
             (e: ChangeEvent<HTMLInputElement>) => {
                 setForm((prev) => ({
                     ...prev,

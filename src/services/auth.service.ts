@@ -9,6 +9,7 @@ export type LoginPayload = {
 export type RegisterPayload = {
     email: string;
     password: string;
+    confirmPassword: string;
     fullName: string;
     phone: string;
 };
@@ -16,6 +17,14 @@ export type RegisterPayload = {
 export type AuthResponse = {
     user: User;
     token: string;
+};
+
+export type ApiError = {
+    status?: string;
+    errors?: {
+        field: string;
+        message: string;
+    }[];
 };
 
 export const login = async (data: LoginPayload): Promise<AuthResponse> => {

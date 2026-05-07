@@ -1,25 +1,21 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import type { User } from "../hooks/useAuth";
 import Navbar from "../components/Nav";
-
-type RegisterForm = {
-    fullName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-};
+import { register, type RegisterPayload } from "../services/auth.service";
+import axios from "axios";
 
 export default function RegisterPage() {
     const navigate = useNavigate();
 
-    const [form, setForm] = useState<RegisterForm>({
+    const [form, setForm] = useState<RegisterPayload>({
         fullName: "",
         email: "",
         password: "",
         confirmPassword: "",
+        phone: "",
     });
 
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
@@ -29,9 +25,12 @@ export default function RegisterPage() {
             ...prev,
             [name]: value,
         }));
+
+        setError("");
+        setSuccess("");
     };
 
-    const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!form.fullName || !form.email || !form.password) {
@@ -46,29 +45,42 @@ export default function RegisterPage() {
             return setError("Mật khẩu không khớp");
         }
 
-        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        try {
+            setLoading(true);
+            await register(form);
 
-        const existed = users.find((u: User) => u.email === form.email);
-        if (existed) {
-            return setError("Email đã tồn tại");
+            setSuccess("Đăng ký thành công!");
+            setError("");
+
+            setForm({
+                fullName: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+                phone: "",
+            });
+
+            setTimeout(() => {
+                navigate("/login");
+            }, 500);
+        } catch (err: unknown) {
+            console.error(err);
+            if (axios.isAxiosError(err)) {
+                const data = err.response?.data;
+
+                const message =
+                    data?.errors?.[0]?.message ||
+                    data?.message ||
+                    "Đăng ký thất bại";
+
+                setError(message);
+                return;
+            }
+
+            setError("Lỗi hệ thống");
+        } finally {
+            setLoading(false);
         }
-
-        const newUser = {
-            id: Date.now(),
-            fullName: form.fullName,
-            email: form.email,
-            password: form.password,
-        };
-
-        users.push(newUser);
-        localStorage.setItem("users", JSON.stringify(users));
-
-        setSuccess("Đăng ký thành công!");
-        setError("");
-
-        setTimeout(() => {
-            navigate("/login");
-        }, 500);
     };
 
     return (
@@ -99,6 +111,15 @@ export default function RegisterPage() {
                 />
 
                 <input
+                    type="text"
+                    name="phone"
+                    placeholder="Số điện thoại"
+                    value={form.phone}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
+
+                <input
                     type="password"
                     name="password"
                     placeholder="Mật khẩu"
@@ -117,7 +138,9 @@ export default function RegisterPage() {
                 />
 
                 <button type="submit" style={styles.button}>
-                    Đăng ký
+                    {loading
+                        ? "Đang đăng ký..."
+                        : "Đăng ký"}
                 </button>
 
                 <p style={{ marginTop: 10 }}>
