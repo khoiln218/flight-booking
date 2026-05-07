@@ -43,14 +43,8 @@ export default function LoginPage(): JSX.Element {
         try {
             setLoading(true);
             setError("");
-
             const res = await login(form);
-
             loginUser(res);
-
-            localStorage.setItem("token", res.token);
-            localStorage.setItem("user", JSON.stringify(res.user));
-
             navigate("/");
         } catch (err: unknown) {
             handleError(err);

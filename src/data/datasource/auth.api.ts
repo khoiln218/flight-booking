@@ -3,7 +3,7 @@ import type { AuthResponse } from "../../services/auth.service";
 
 const api = axios.create({
     baseURL: "https://backend-flightbooking.onrender.com/api/",
-    timeout: 5000,
+    timeout: 60000,
 });
 
 export const login = async (
