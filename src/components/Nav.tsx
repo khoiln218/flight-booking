@@ -60,7 +60,7 @@ export default function Navbar() {
                 style={styles.logo}
                 onClick={() => navigate("/")}
             >
-                ✈️ Flight Booking
+                ✈️ Flight Booking(Nhóm 5)
             </div>
 
             {/* RIGHT */}
