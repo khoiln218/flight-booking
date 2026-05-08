@@ -18,7 +18,12 @@ export default function FlightsPage(): JSX.Element {
     });
     const navigate = useNavigate();
 
-    // 🔥 click lịch sử
+    const handleDeleteItem = (index: number) => {
+        const newHistory = history.filter((_, i) => i !== index);
+        setHistory(newHistory);
+        localStorage.setItem("search_history", JSON.stringify(newHistory));
+    };
+
     const handleSelectHistory = (item: SearchItem) => {
         navigate(
             `/flights?from=${item.from}&to=${item.to}&date=${item.date}`
@@ -37,9 +42,9 @@ export default function FlightsPage(): JSX.Element {
 
         localStorage.setItem("search_history", JSON.stringify(newHistory));
 
-        setHistory(newHistory);
-
         navigate(`/flights?from=${from}&to=${to}&date=${date}`);
+
+        setHistory(newHistory);
     };
 
     return (
@@ -86,10 +91,7 @@ export default function FlightsPage(): JSX.Element {
             {history.length > 0 && (
                 <div style={styles.card}>
                     <div style={styles.title}>🕘 Lịch sử tìm kiếm</div>
-
-                    {history.length === 0 ? (
-                        <p style={styles.empty}>Chưa có lịch sử</p>
-                    ) : (
+                    {(
                         history.map((item, index) => (
                             <div
                                 key={index}
@@ -116,9 +118,23 @@ export default function FlightsPage(): JSX.Element {
                                         </div>
                                     </div>
                                 </div>
+                                {/* RIGHT - ACTION GROUP */}
+                                <div style={styles.actions}>
+                                    <button
+                                        style={styles.selectBtn}
+                                    >
+                                        Chọn
+                                    </button>
 
-                                <div style={{ color: "#00a8ff", fontSize: "14px", paddingRight: "16px" }}>
-                                    Chọn
+                                    <button
+                                        style={styles.deleteBtn}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteItem(index);
+                                        }}
+                                    >
+                                        X
+                                    </button>
                                 </div>
                             </div>
                         ))
@@ -228,6 +244,33 @@ const styles: { [key: string]: React.CSSProperties } = {
     historyHover: {
         background: "#e6f4ff",
         transform: "translateY(-2px)",
+    },
+
+    actions: {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+    },
+
+
+    selectBtn: {
+        background: "#00a8ff",
+        color: "#fff",
+        border: "none",
+        padding: "6px 10px",
+        borderRadius: "8px",
+        fontSize: "12px",
+        cursor: "pointer",
+    },
+
+    deleteBtn: {
+        background: "#f3f4f6",
+        color: "#ef4444",
+        border: "none",
+        padding: "6px 10px",
+        borderRadius: "8px",
+        fontSize: "12px",
+        cursor: "pointer",
     },
 
     empty: {

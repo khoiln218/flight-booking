@@ -159,17 +159,17 @@ export default function RegisterPage() {
 
 const styles: { [key: string]: React.CSSProperties } = {
     form: {
-        width: 350,
-        maxWidth: "500px",
+        width: "100%",
+        maxWidth: 320,
         margin: "40px auto",
         background: "#fff",
-        borderRadius: "18px",
-        padding: "32px",
-        boxShadow:
-            "0 4px 20px rgba(0,0,0,0.08)",
+        borderRadius: 16,
+        padding: 32,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
         display: "flex",
         flexDirection: "column",
         textAlign: "center",
+        gap: 12,
     },
 
     input: {

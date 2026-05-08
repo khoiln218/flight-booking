@@ -36,6 +36,9 @@ export default function Navbar() {
             );
     }, []);
 
+    const isRegisterPage =
+        location.pathname === "/register";
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -140,15 +143,16 @@ export default function Navbar() {
                         )}
                     </div>
                 ) : (
-                    <button
-                        style={styles.loginButton}
-                        onClick={() =>
-                            navigate("/register")
-                        }
-                    >
-                        Đăng ký
-                    </button>
-                )}
+                    !isRegisterPage && (
+                        <button
+                            style={styles.loginButton}
+                            onClick={() =>
+                                navigate("/register")
+                            }
+                        >
+                            Đăng ký
+                        </button>
+                    ))}
             </div>
         </nav>
     );

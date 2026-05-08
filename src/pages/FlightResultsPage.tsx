@@ -116,7 +116,7 @@ export default function FlightResultsPage(): JSX.Element {
                                 style={styles.button}
                                 onClick={() => handleSelect(flight)}
                             >
-                                Chọn chuyến
+                                Đặt vé
                             </button>
                         </div>
                     ))}
