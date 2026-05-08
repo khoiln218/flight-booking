@@ -1,36 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState, type CSSProperties } from "react";
 import Navbar from "../components/Nav";
-import { COLS, ROWS, type Seat, type SeatStatus } from "../hooks/useFlights";
+import {
+    COLS,
+    ROWS,
+    useSeat,
+    type Seat,
+    type SeatStatus,
+} from "../hooks/useFlights";
 import { Legend } from "../components/Legend";
-
-const getSeatPrice = (row: number, col: string) => {
-    let price = 500000;
-
-    if (row <= 2) price += 200000; // VIP
-    if (col === "A" || col === "F") price += 100000; // window
-    if (col === "C" || col === "D") price += 50000; // aisle
-
-    return price;
-};
-
-const generateSeats = (): Seat[] => {
-    const seats: Seat[] = [];
-
-    for (let row = 1; row <= ROWS; row++) {
-        for (const col of COLS) {
-            seats.push({
-                id: `${row}${col}`,
-                row,
-                col,
-                status: Math.random() < 0.2 ? "booked" : "available",
-                price: getSeatPrice(row, col),
-            });
-        }
-    }
-
-    return seats;
-};
+import dayjs from "dayjs";
 
 export default function BookingSeatPage() {
     const location = useLocation();
@@ -38,23 +17,33 @@ export default function BookingSeatPage() {
 
     const flight = location.state?.flight;
 
-    const [seats, setSeats] = useState<Seat[]>(generateSeats());
+    const { data: seatmodels = [], isLoading } = useSeat(flight.id);
+
+    const [selectedSeatIds, setSelectedSeatIds] = useState<number[]>([]);
 
     const toggleSeat = (seat: Seat) => {
         if (seat.status === "booked") return;
 
-        setSeats((prev) =>
-            prev.map((s) =>
-                s.id === seat.id
-                    ? {
-                        ...s,
-                        status:
-                            s.status === "selected" ? "available" : "selected",
-                    }
-                    : s
-            )
+        setSelectedSeatIds((prev) =>
+            prev.includes(seat.id)
+                ? prev.filter((id) => id !== seat.id)
+                : [...prev, seat.id]
         );
     };
+
+    const seats = useMemo(() => {
+        return seatmodels.map((s) => {
+            let status: SeatStatus = "available";
+
+            if (s.status === "booked") status = "booked";
+            else if (selectedSeatIds.includes(s.id)) status = "selected";
+
+            return {
+                ...s,
+                status,
+            };
+        });
+    }, [seatmodels, selectedSeatIds]);
 
     const selectedSeats = useMemo(
         () => seats.filter((s) => s.status === "selected"),
@@ -89,6 +78,20 @@ export default function BookingSeatPage() {
         });
     };
 
+    if (isLoading) {
+        return (
+            <div style={styles.container}>
+                <Navbar />
+                <p style={{
+                    textAlign: "left",
+                    marginLeft: 20,
+                    marginTop: 16,
+                    marginBottom: 16,
+                }}>Đang tải ghế...</p>
+            </div>
+        );
+    }
+
     return (
         <div style={styles.container}>
             <Navbar />
@@ -98,9 +101,9 @@ export default function BookingSeatPage() {
             {/* Flight info */}
             {flight && (
                 <div style={styles.flightInfo}>
-                    <b>Chuyến bay:</b> {flight.id} <br />
-                    <b>Từ:</b> {flight.from} → {flight.to} <br />
-                    <b>Ngày:</b> {flight.date}
+                    <b>Chuyến bay:</b> {flight.airline.name} <br />
+                    <b>Từ:</b> {flight.departure.airportName} → {flight.arrival.airportName} <br />
+                    <b>Ngày:</b> {dayjs(flight.date).format("DD/MM/YYYY")}
                 </div>
             )}
 
@@ -124,8 +127,10 @@ export default function BookingSeatPage() {
                     >
                         {COLS.map((col) => {
                             const seat = seats.find(
-                                (s) => s.id === `${rowIndex + 1}${col}`
-                            )!;
+                                (s) => s.row === rowIndex + 1 && s.col === col
+                            );
+
+                            if (!seat) return null;
 
                             return (
                                 <div
@@ -144,9 +149,7 @@ export default function BookingSeatPage() {
                                         color:
                                             seat.status === "selected"
                                                 ? "#fff"
-                                                : seat.status === "booked"
-                                                    ? "#fff"
-                                                    : "#000",
+                                                : "#000",
                                         display: "flex",
                                         flexDirection: "column",
                                         justifyContent: "center",
@@ -154,7 +157,10 @@ export default function BookingSeatPage() {
                                         fontSize: 10,
                                     }}
                                 >
-                                    <div>{seat.row}{seat.col}</div>
+                                    <div>
+                                        {seat.row}
+                                        {seat.col}
+                                    </div>
                                     <div>{seat.price / 1000}k</div>
                                 </div>
                             );
@@ -166,11 +172,14 @@ export default function BookingSeatPage() {
             {/* Selected */}
             <div style={styles.selected}>
                 <h4 style={{ margin: 0, padding: "6px 0px" }}>Ghế đã chọn:</h4>
-                <p >
-                    {selectedSeats.map((s) => s.id).join(", ") || "Chưa chọn"}
+                <p>
+                    {selectedSeats.map((s) => `${s.row}${s.col}`).join(", ") ||
+                        "Chưa chọn"}
                 </p>
 
-                <h3 style={{ margin: 0, padding: "6px 0px" }}>Tổng tiền: {(totalPrice / 1000).toFixed(0)}k VND</h3>
+                <h3 style={{ margin: 0, padding: "6px 0px" }}>
+                    Tổng tiền: {(totalPrice / 1000).toFixed(0)}k VND
+                </h3>
 
                 <button
                     onClick={handleConfirm}
@@ -192,6 +201,10 @@ export default function BookingSeatPage() {
 }
 
 const styles: Record<string, CSSProperties> = {
+    container: {
+        paddingBottom: 40,
+    },
+
     title: {
         marginTop: 16,
         marginBottom: 16,
@@ -199,14 +212,12 @@ const styles: Record<string, CSSProperties> = {
     },
 
     selected: {
-        marginTop: 16,
-        padding: 16,
+        padding: 20,
         textAlign: "left",
-        border: "1px solid #ddd",
     },
-
+    
     flightInfo: {
-        padding: 16,
+        padding: 20,
         textAlign: "left",
     },
-}
+};

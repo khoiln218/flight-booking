@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { searchFlights } from "../services/flight.service";
+import { getSeatsByFlight } from "../data/datasource/flight.api";
 
 export const ROWS = 12;
 export const COLS = ["A", "B", "C", "D", "E", "F"];
@@ -74,7 +75,7 @@ export type Flight = {
 export type SeatStatus = "available" | "booked" | "selected";
 
 export type Seat = {
-  id: string;
+  id: number;
   row: number;
   col: string;
   status: SeatStatus;
@@ -123,6 +124,19 @@ export interface FlightSearchResponse {
   totalPages: number;
 }
 
+export type SeatModel = {
+  id: number;
+  flight_id: number;
+  seat_number: string;
+  class: string;
+  status: string;
+  price_modifier: number;
+}
+
+export interface FlightSeatResponse {
+  seats: SeatModel[];
+}
+
 export const mapFlight = (item: FlightModel): Flight => {
   return {
     id: item.id,
@@ -158,6 +172,19 @@ export const mapFlight = (item: FlightModel): Flight => {
   };
 };
 
+export const mapSeat = (seat: SeatModel): Seat => {
+  const row = parseInt(seat.seat_number.slice(0, -1));
+  const col = seat.seat_number.slice(-1);
+
+  return {
+    id: seat.id,
+    row,
+    col,
+    status: seat.status === "booked" ? "booked" : "available",
+    price: 500000 * seat.price_modifier,
+  };
+};
+
 export const useFlights = (params: SearchFlightParams) => {
   return useQuery<Flight[]>({
     queryKey: ["flights", params.from, params.to, params.date],
@@ -170,6 +197,17 @@ export const useFlights = (params: SearchFlightParams) => {
       }),
 
     enabled: !!params.from && !!params.to && !!params.date,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useSeat = (flightId: number) => {
+  return useQuery<Seat[]>({
+    queryKey: ["seats", flightId],
+    queryFn: () => getSeatsByFlight(flightId),
+
+    enabled: !!flightId,
     retry: false,
     refetchOnWindowFocus: false,
   });

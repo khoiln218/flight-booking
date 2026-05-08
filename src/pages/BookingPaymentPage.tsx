@@ -41,8 +41,8 @@ export default function BookingPaymentPage() {
 
             {/* Thông tin chuyến */}
             <div style={{ margin: "20px 20px" }}>
-                <p><b>Chuyến bay:</b> {flight.from} → {flight.to}</p>
-                <p><b>Ngày:</b> {formatDate(new Date(flight.date))}</p>
+                <p><b>Chuyến bay:</b> {flight.departure.airportName} → {flight.arrival.airportName}</p>
+                <p><b>Ngày:</b> {formatDate(new Date(flight.departure.time))}</p>
                 <p>
                     <b>Ghế:</b>{" "}
                     {selectedSeats?.map((s) => `${s.row}${s.col}`).join(", ")}

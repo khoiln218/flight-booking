@@ -1,8 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "../components/Nav";
-import { formatDate } from "../utils/AppConverter";
 import type { Seat } from "../hooks/useFlights";
+import dayjs from "dayjs";
 
 export default function BookingConfirmPage() {
     const location = useLocation();
@@ -38,9 +38,9 @@ export default function BookingConfirmPage() {
                 <h2 style={{ marginBottom: "20px", marginTop: "20px" }}>Xác nhận đặt vé ✈️</h2>
 
                 <div style={{ marginBottom: "20px" }}>
-                    <p><b>Chuyến bay:</b> {flight.from} → {flight.to}</p>
-                    <p><b>Thời gian:</b> {flight.departureTime}</p>
-                    <p><b>Ngày:</b> {formatDate(new Date(flight.date))}</p>
+                    <p><b>Chuyến bay:</b> {flight.departure.airportName} → {flight.arrival.airportName}</p>
+                    <p><b>Thời gian:</b> {dayjs(flight.departure.time).format("HH:mm")}</p>
+                    <p><b>Ngày:</b> {dayjs(flight.date).format("DD/MM/YYYY")}</p>
                     <p><b>Ghế:</b> {selectedSeats?.map((seat: Seat) => `${seat.row}${seat.col}`).join(", ")}</p>
                     <p><b>Tổng tiền:</b> {totalPrice.toLocaleString()} VND</p>
                 </div>
