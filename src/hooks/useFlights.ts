@@ -5,6 +5,14 @@ import { cancelBooking, createBooking, getBookingHistory, getSeatsByFlight } fro
 export const ROWS = 12;
 export const COLS = ["A", "B", "C", "D", "E", "F"];
 
+export const AIRPORTS = [
+  { id: 1, code: "SGN", name: "Tân Sơn Nhất", city: "Hồ Chí Minh" },
+  { id: 2, code: "HAN", name: "Nội Bài", city: "Hà Nội" },
+  { id: 3, code: "DAD", name: "Đà Nẵng", city: "Đà Nẵng" },
+  { id: 4, code: "CXR", name: "Cam Ranh", city: "Nha Trang" },
+  { id: 5, code: "PQC", name: "Phú Quốc", city: "Phú Quốc" },
+];
+
 export type SearchFlightParams = {
   from: string;
   to: string;

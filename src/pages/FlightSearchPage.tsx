@@ -1,7 +1,11 @@
 import { useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Nav";
-import type { SearchFlightParams, SearchItem } from "../hooks/useFlights";
+import {
+    AIRPORTS,
+    type SearchFlightParams,
+    type SearchItem,
+} from "../hooks/useFlights";
 import { formatDate } from "../utils/AppConverter";
 
 export default function FlightSearchPage(): JSX.Element {
@@ -9,6 +13,7 @@ export default function FlightSearchPage(): JSX.Element {
     const [date, setDate] = useState(today);
     const [from, setFrom] = useState<string>("");
     const [to, setTo] = useState<string>("");
+
     const [history, setHistory] = useState<SearchItem[]>(() => {
         try {
             return JSON.parse(localStorage.getItem("search_history") || "[]");
@@ -16,7 +21,41 @@ export default function FlightSearchPage(): JSX.Element {
             return [];
         }
     });
+
+    const [fromSuggest, setFromSuggest] = useState<typeof AIRPORTS>([]);
+    const [toSuggest, setToSuggest] = useState<typeof AIRPORTS>([]);
+
     const navigate = useNavigate();
+
+    const handleFromChange = (value: string) => {
+        setFrom(value);
+        const v = value.toLowerCase();
+        if (!v) return setFromSuggest([]);
+
+        setFromSuggest(
+            AIRPORTS.filter(
+                (a) =>
+                    a.name.toLowerCase().includes(v) ||
+                    a.city.toLowerCase().includes(v) ||
+                    a.code.toLowerCase().includes(v)
+            )
+        );
+    };
+
+    const handleToChange = (value: string) => {
+        setTo(value);
+        const v = value.toLowerCase();
+        if (!v) return setToSuggest([]);
+
+        setToSuggest(
+            AIRPORTS.filter(
+                (a) =>
+                    a.name.toLowerCase().includes(v) ||
+                    a.city.toLowerCase().includes(v) ||
+                    a.code.toLowerCase().includes(v)
+            )
+        );
+    };
 
     const handleDeleteItem = (index: number) => {
         const newHistory = history.filter((_, i) => i !== index);
@@ -38,57 +77,99 @@ export default function FlightSearchPage(): JSX.Element {
 
         const newItem = { from, to, date };
 
-        const oldHistory: SearchFlightParams[] =
-            JSON.parse(localStorage.getItem("search_history") || "[]");
+        const oldHistory: SearchFlightParams[] = JSON.parse(
+            localStorage.getItem("search_history") || "[]"
+        );
 
-        const newHistory = [
-            newItem,
-            ...oldHistory,
-        ].filter(
-            (item, index, self) =>
-                index ===
-                self.findIndex(
-                    (t) =>
-                        t.from === item.from &&
-                        t.to === item.to &&
-                        t.date === item.date
-                )
-        ).slice(0, 5);
+        const newHistory = [newItem, ...oldHistory]
+            .filter(
+                (item, index, self) =>
+                    index ===
+                    self.findIndex(
+                        (t) =>
+                            t.from === item.from &&
+                            t.to === item.to &&
+                            t.date === item.date
+                    )
+            )
+            .slice(0, 5);
 
-        localStorage.setItem("search_history", JSON.stringify(newHistory));
-
-        navigate(`/flights?from=${from}&to=${to}&date=${date}`);
+        localStorage.setItem(
+            "search_history",
+            JSON.stringify(newHistory)
+        );
 
         setHistory(newHistory);
+
+        navigate(`/flights?from=${from}&to=${to}&date=${date}`);
     };
 
     return (
         <div style={styles.container}>
-            {/* Navbar */}
             <Navbar />
 
-            {/* Banner */}
             <div style={styles.banner}>
                 <p>Tìm chuyến bay giá tốt nhất cho bạn</p>
             </div>
 
-            {/* Form tìm kiếm */}
             <div style={styles.form}>
-                <input
-                    type="text"
-                    placeholder="Điểm đi (VD: Hà Nội)"
-                    value={from}
-                    onChange={(e) => setFrom(e.target.value.trim().toUpperCase())}
-                    style={styles.input}
-                />
+                <div style={{ position: "relative" }}>
+                    <input
+                        type="text"
+                        placeholder="Điểm đi"
+                        value={from}
+                        onChange={(e) =>
+                            handleFromChange(e.target.value)
+                        }
+                        style={styles.input}
+                    />
 
-                <input
-                    type="text"
-                    placeholder="Điểm đến (VD: TP.HCM)"
-                    value={to}
-                    onChange={(e) => setTo(e.target.value.trim().toUpperCase())}
-                    style={styles.input}
-                />
+                    {fromSuggest.length > 0 && (
+                        <div style={styles.suggestBox}>
+                            {fromSuggest.map((a) => (
+                                <div
+                                    key={a.id}
+                                    style={styles.suggestItem}
+                                    onClick={() => {
+                                        setFrom(a.code);
+                                        setFromSuggest([]);
+                                    }}
+                                >
+                                    ✈️ {a.city} - {a.name} ({a.code})
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ position: "relative" }}>
+                    <input
+                        type="text"
+                        placeholder="Điểm đến"
+                        value={to}
+                        onChange={(e) =>
+                            handleToChange(e.target.value)
+                        }
+                        style={styles.input}
+                    />
+
+                    {toSuggest.length > 0 && (
+                        <div style={styles.suggestBox}>
+                            {toSuggest.map((a) => (
+                                <div
+                                    key={a.id}
+                                    style={styles.suggestItem}
+                                    onClick={() => {
+                                        setTo(a.code);
+                                        setToSuggest([]);
+                                    }}
+                                >
+                                    ✈️ {a.city} - {a.name} ({a.code})
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 <input
                     type="date"
@@ -102,7 +183,6 @@ export default function FlightSearchPage(): JSX.Element {
                 </button>
             </div>
 
-            {/* 🧠 HISTORY */}
             {history.length > 0 && (
                 <div style={styles.card}>
                     <div style={styles.title}>🕘 Lịch sử tìm kiếm</div>
