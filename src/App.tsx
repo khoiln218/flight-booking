@@ -8,7 +8,7 @@ import BookingSeatPage from "./pages/BookingSeatPage.tsx";
 import BookingConfirmPage from "./pages/BookingConfirmPage.tsx";
 import BookingSuccessPage from "./pages/BookingSuccessPage.tsx";
 import BookingPaymentPage from "./pages/BookingPaymentPage.tsx";
-import FlightsPage from "./pages/FlightsPage.tsx";
+import FlightSearchPage from "./pages/FlightSearchPage.tsx";
 import BookingHistoryPage from "./pages/BookingHistoryPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 
@@ -31,7 +31,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <FlightsPage />
+                <FlightSearchPage />
               </ProtectedRoute>
             }
           />

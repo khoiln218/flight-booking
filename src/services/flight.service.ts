@@ -1,22 +1,16 @@
-import type { Flight } from "../hooks/useFlights";
+import { flightDataSource } from "../data/datasource";
+import type { Flight, SearchFlightParams } from "../hooks/useFlights";
 
-export const getFlights = async (
+export const searchFlights = async (
+  params: SearchFlightParams
 ): Promise<Flight[]> => {
-  return [];
-};
+  if (!params.from || !params.to || !params.date) {
+    throw new Error("Missing params");
+  }
 
-
-export const getFlightDetail = async (
-  id: string
-): Promise<Flight> => {
-  return {
-    id,
-    airline: "",
-    from: "",
-    to: "",
-    date: "",
-    departureTime: "",
-    arrivalTime: "",
-    price: 0
-  };
+  return flightDataSource.searchFlights({
+    departure: params.from,
+    arrival: params.to,
+    departureDate: params.date,
+  });
 };

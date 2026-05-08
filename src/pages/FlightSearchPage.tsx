@@ -1,10 +1,10 @@
 import { useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Nav";
-import type { SearchItem } from "../hooks/useFlights";
+import type { SearchFlightParams, SearchItem } from "../hooks/useFlights";
 import { formatDate } from "../utils/AppConverter";
 
-export default function FlightsPage(): JSX.Element {
+export default function FlightSearchPage(): JSX.Element {
     const today = new Date().toISOString().split("T")[0];
     const [date, setDate] = useState(today);
     const [from, setFrom] = useState<string>("");
@@ -38,7 +38,22 @@ export default function FlightsPage(): JSX.Element {
 
         const newItem = { from, to, date };
 
-        const newHistory = [newItem, ...history].slice(0, 5);
+        const oldHistory: SearchFlightParams[] =
+            JSON.parse(localStorage.getItem("search_history") || "[]");
+
+        const newHistory = [
+            newItem,
+            ...oldHistory,
+        ].filter(
+            (item, index, self) =>
+                index ===
+                self.findIndex(
+                    (t) =>
+                        t.from === item.from &&
+                        t.to === item.to &&
+                        t.date === item.date
+                )
+        ).slice(0, 5);
 
         localStorage.setItem("search_history", JSON.stringify(newHistory));
 
@@ -63,7 +78,7 @@ export default function FlightsPage(): JSX.Element {
                     type="text"
                     placeholder="Điểm đi (VD: Hà Nội)"
                     value={from}
-                    onChange={(e) => setFrom(e.target.value)}
+                    onChange={(e) => setFrom(e.target.value.trim().toUpperCase())}
                     style={styles.input}
                 />
 
@@ -71,7 +86,7 @@ export default function FlightsPage(): JSX.Element {
                     type="text"
                     placeholder="Điểm đến (VD: TP.HCM)"
                     value={to}
-                    onChange={(e) => setTo(e.target.value)}
+                    onChange={(e) => setTo(e.target.value.trim().toUpperCase())}
                     style={styles.input}
                 />
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, type JSX } from "react";
 import Navbar from "../components/Nav";
-import { formatDate } from "../utils/AppConverter";
 import type { Booking, BookingStatus } from "../hooks/useFlights";
+import dayjs from "dayjs";
 
 export default function BookingHistoryPage(): JSX.Element {
     const isExpired = (departureTime: string) => {
@@ -120,12 +120,7 @@ export default function BookingHistoryPage(): JSX.Element {
                             </p>
 
                             <p>
-                                <b>Khởi hành:</b> {booking.departureTime}
-                            </p>
-
-                            <p>
-                                <b>Ngày:</b>{" "}
-                                {formatDate(new Date(booking.departureTime))}
+                                <b>Khởi hành:</b> {dayjs(booking.departureTime).format("DD/MM/YYYY HH:mm")}
                             </p>
 
                             <p>

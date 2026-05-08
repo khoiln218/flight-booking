@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState, type CSSProperties } from "react";
 import Navbar from "../components/Nav";
 import { COLS, ROWS, type Seat, type SeatStatus } from "../hooks/useFlights";
-import { Legend } from "./Legend";
+import { Legend } from "../components/Legend";
 
 const getSeatPrice = (row: number, col: string) => {
     let price = 500000;

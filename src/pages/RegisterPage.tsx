@@ -64,7 +64,6 @@ export default function RegisterPage() {
                 navigate("/login");
             }, 500);
         } catch (err: unknown) {
-            console.error(err);
             if (axios.isAxiosError(err)) {
                 const data = err.response?.data;
 
