@@ -27,14 +27,14 @@ export default function ProfilePage(): JSX.Element {
         </div>
 
         <h2 style={styles.title}>
-          My Profile
+          Hồ sơ của tôi
         </h2>
 
         {/* Card */}
         <div style={styles.card}>
           <div style={styles.infoItem}>
             <span style={styles.label}>
-              Full Name
+              Họ tên
             </span>
 
             <span style={styles.value}>
@@ -44,7 +44,7 @@ export default function ProfilePage(): JSX.Element {
 
           <div style={styles.infoItem}>
             <span style={styles.label}>
-              Email
+              Thư điện tử
             </span>
 
             <span style={styles.value}>
@@ -54,7 +54,7 @@ export default function ProfilePage(): JSX.Element {
 
           <div style={styles.infoItem}>
             <span style={styles.label}>
-              Role
+              Loại tài khoản
             </span>
 
             <span style={styles.role}>
@@ -68,7 +68,7 @@ export default function ProfilePage(): JSX.Element {
           style={styles.logoutButton}
           onClick={logout}
         >
-          Logout
+          Thoát
         </button>
       </div>
     </div>

@@ -119,7 +119,7 @@ export default function Navbar() {
                                         setShowProfile(false);
                                     }}
                                 >
-                                    📜 Booking History
+                                    📜 Lịch sử đặt vé
                                 </div>
 
                                 <div
@@ -129,7 +129,7 @@ export default function Navbar() {
                                         setShowProfile(false);
                                     }}
                                 >
-                                    👤 My Profile
+                                    👤 Hồ sơ của tôi
                                 </div>
 
                                 {/* LOGOUT */}
@@ -137,7 +137,7 @@ export default function Navbar() {
                                     style={styles.logoutButton}
                                     onClick={handleLogout}
                                 >
-                                    🚪 Sign Out
+                                    🚪 Đăng xuất
                                 </div>
                             </div>
                         )}
