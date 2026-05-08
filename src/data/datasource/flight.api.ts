@@ -1,9 +1,19 @@
 import axios from "axios";
-import { mapFlight, mapSeat, type Flight, type FlightSearchResponse, type FlightSeatResponse, type Seat } from "../../hooks/useFlights";
+import { mapBooking, mapFlight, mapSeat, type Booking, type BookingModel, type CreateBookingPayload, type Flight, type FlightBookingResponse, type FlightSearchResponse, type FlightSeatResponse, type Seat } from "../../hooks/useFlights";
 
 const api = axios.create({
     baseURL: "https://backend-flightbooking.onrender.com/api/",
     timeout: 60000,
+});
+
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
 });
 
 export const searchFlights = async (
@@ -52,4 +62,52 @@ export const getSeatsByFlight = async (
 
         throw error;
     }
+};
+
+export const getBookingHistory = async (): Promise<Booking[]> => {
+    try {
+        const { data } = await api.get<FlightBookingResponse>("/bookings");
+
+        return data.data.map(mapBooking);
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const data = error.response?.data;
+
+            const message =
+                data?.errors?.[0]?.message ||
+                data?.message ||
+                "Lấy lịch sử dụng thất bại";
+
+            throw new Error(message);
+        }
+
+        throw error;
+    }
+};
+
+export const cancelBooking = async (id: number): Promise<Booking> => {
+    try {
+        const res = await api.post<{ booking: BookingModel }>(`bookings/${id}/cancel`);
+
+        return mapBooking(res.data.booking);
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const data = error.response?.data;
+
+            const message =
+                data?.errors?.[0]?.message ||
+                data?.message ||
+                "Lấy lịch sử dụng thất bại";
+
+            throw new Error(message);
+        }
+
+        throw error;
+    }
+};
+
+
+export const createBooking = async (payload: CreateBookingPayload) => {
+    const res = await api.post("/bookings", payload);
+    return res.data;
 };

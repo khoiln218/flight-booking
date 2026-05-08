@@ -1,81 +1,28 @@
-import { useEffect, useState, type JSX } from "react";
+import { type JSX } from "react";
 import Navbar from "../components/Nav";
-import type { Booking, BookingStatus } from "../hooks/useFlights";
 import dayjs from "dayjs";
+import { useBookings, useCancelBooking } from "../hooks/useFlights";
+import { getStatusColor, getStatusText } from "../utils/Utils";
 
 export default function BookingHistoryPage(): JSX.Element {
+    const { data: bookings = [], isLoading, error } = useBookings();
+    const cancelMutation = useCancelBooking();
+
     const isExpired = (departureTime: string) => {
-        return new Date(departureTime) < new Date();
+        const now = new Date();
+        const departure = new Date(departureTime);
+
+        return departure < now;
     };
-
-    const [bookings, setBookings] = useState<Booking[]>([]);
-
-    useEffect(() => {
-        const data: Booking[] = [
-            {
-                id: 1,
-                flightCode: "VN123",
-                from: "Hồ Chí Minh",
-                to: "Hà Nội",
-                departureTime: "2026-05-10 08:30",
-                totalPrice: 2500000,
-                seats: [
-                    { col: "A", row: 1 },
-                    { col: "A", row: 2 },
-                ],
-                status: "BOOKED",
-            },
-            {
-                id: 2,
-                flightCode: "VJ888",
-                from: "Đà Nẵng",
-                to: "Phú Quốc",
-                departureTime: "2026-05-15 14:00",
-                totalPrice: 1800000,
-                seats: [{ col: "C", row: 5 }],
-                status: "USED",
-            },
-            {
-                id: 3,
-                flightCode: "VJ999",
-                from: "Đà Nẵng",
-                to: "Phú Quốc",
-                departureTime: "2026-05-15 14:00",
-                totalPrice: 1700000,
-                seats: [{ col: "C", row: 3 }],
-                status: "CANCELLED",
-            },
-            {
-                id: 4,
-                flightCode: "VN123",
-                from: "Hồ Chí Minh",
-                to: "Hà Nội",
-                departureTime: "2024-05-10 08:30",
-                totalPrice: 2500000,
-                seats: [{ col: "A", row: 1 }],
-                status: "BOOKED",
-            },
-        ];
-
-        const updated = data.map((b) =>
-            isExpired(b.departureTime) && b.status === "BOOKED"
-                ? { ...b, status: "EXPIRED" as BookingStatus }
-                : b
-        );
-
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setBookings(updated);
-    }, []);
 
     const handleCancel = (id: number) => {
-        setBookings((prev) =>
-            prev.map((booking) =>
-                booking.id === id
-                    ? { ...booking, status: "CANCELLED" }
-                    : booking
-            )
-        );
+        cancelMutation.mutate(id);
     };
+
+    if (isLoading) return (<div style={styles.container}>
+        <Navbar /><p style={{ padding: "16px 20px", textAlign: "left" }}>Đang tải...</p> </div>);
+    if (error) return (<div style={styles.container}>
+        <Navbar /><p style={{ padding: "16px 20px", textAlign: "left" }}>Lỗi tải dữ liệu</p> </div>);
 
     return (
         <div style={styles.container}>
@@ -90,28 +37,21 @@ export default function BookingHistoryPage(): JSX.Element {
                     {bookings.map((booking) => (
                         <div key={booking.id} style={styles.card}>
                             <div style={styles.header}>
-                                <h2>{booking.flightCode}</h2>
+                                <h2>{booking.id}</h2>
 
                                 <span
                                     style={{
                                         ...styles.status,
-                                        backgroundColor:
-                                            booking.status === "BOOKED"
-                                                ? "#22c55e"
-                                                : booking.status === "USED"
-                                                    ? "#3b82f6"
-                                                    : booking.status === "EXPIRED"
-                                                        ? "#f59e0b"
-                                                        : "#9ca3af",
+                                        backgroundColor: getStatusColor(
+                                            booking.status,
+                                            isExpired(booking.departureTime)
+                                        ),
                                     }}
                                 >
-                                    {booking.status === "BOOKED"
-                                        ? "Đã đặt"
-                                        : booking.status === "USED"
-                                            ? "Đã dùng"
-                                            : booking.status === "EXPIRED"
-                                                ? "Hết hạn"
-                                                : "Đã hủy"}
+                                    {getStatusText(
+                                        booking.status,
+                                        isExpired(booking.departureTime)
+                                    )}
                                 </span>
                             </div>
 
@@ -135,7 +75,7 @@ export default function BookingHistoryPage(): JSX.Element {
                                 {booking.totalPrice.toLocaleString("vi-VN")} VNĐ
                             </p>
 
-                            {booking.status === "BOOKED" &&
+                            {booking.status === "confirmed" || booking.status === "pending" &&
                                 !isExpired(booking.departureTime) && (
                                     <button
                                         style={styles.cancelButton}

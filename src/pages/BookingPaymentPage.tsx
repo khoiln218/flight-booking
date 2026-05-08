@@ -1,8 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import type { BookingState } from "../hooks/useFlights";
+import { useCreateBooking, type BookingState, type CreateBookingPayload } from "../hooks/useFlights";
 import Navbar from "../components/Nav";
-import { formatDate } from "../utils/AppConverter";
+import dayjs from "dayjs";
 
 export default function BookingPaymentPage() {
     const location = useLocation();
@@ -14,23 +14,68 @@ export default function BookingPaymentPage() {
     const [method, setMethod] = useState("momo");
     const [loading, setLoading] = useState(false);
 
-    const handlePayment = () => {
-        setLoading(true);
+    const { mutate } = useCreateBooking();
 
-        // fake API thanh toán
-        setTimeout(() => {
-            setLoading(false);
-
-            navigate("/success", {
-                state: {
-                    flight,
-                    selectedSeats,
-                    totalPrice,
-                    method,
-                },
-            });
-        }, 2000);
+    const getUserFromStorage = () => {
+        try {
+            return JSON.parse(localStorage.getItem("user") || "{}");
+        } catch {
+            return null;
+        }
     };
+
+
+    const handlePayment = () => {
+        if (selectedSeats.length === 0) {
+            alert("Vui lòng chọn ghế");
+            return;
+        }
+
+        const user = getUserFromStorage();
+
+        if (!user) {
+            alert("Không tìm thấy thông tin người dùng");
+            return;
+        }
+
+        setLoading(true);
+        const payload: CreateBookingPayload = {
+            flightId: flight.id,
+            seatIds: selectedSeats.map((s) => s.id),
+
+            passengers: selectedSeats.map(() => ({
+                fullName: user.fullName,
+                dateOfBirth: '1990-01-01',
+                idNumber: '123456789',
+                idType: user.idType || "cccd",
+            })),
+        };
+
+        mutate(payload, {
+            onSuccess: (data) => {
+                console.log("✅ Booking thành công", data);
+
+                setLoading(false);
+
+                navigate("/success", {
+                    state: {
+                        flight,
+                        selectedSeats,
+                        totalPrice,
+                        method,
+                        booking: data,
+                    },
+                });
+            },
+            onError: (err) => {
+                console.error("❌ Booking lỗi", err);
+                setLoading(false);
+                alert("Đặt vé thất bại!");
+            },
+        });
+    };
+
+
 
     if (!flight) return <p>Không có dữ liệu thanh toán</p>;
 
@@ -42,7 +87,7 @@ export default function BookingPaymentPage() {
             {/* Thông tin chuyến */}
             <div style={{ margin: "20px 20px" }}>
                 <p><b>Chuyến bay:</b> {flight.departure.airportName} → {flight.arrival.airportName}</p>
-                <p><b>Ngày:</b> {formatDate(new Date(flight.departure.time))}</p>
+                <p><b>Ngày:</b> {dayjs(flight.departure.time).format("DD/MM/YYYY HH:mm")}</p>
                 <p>
                     <b>Ghế:</b>{" "}
                     {selectedSeats?.map((s) => `${s.row}${s.col}`).join(", ")}

@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { searchFlights } from "../services/flight.service";
-import { getSeatsByFlight } from "../data/datasource/flight.api";
+import { cancelBooking, createBooking, getBookingHistory, getSeatsByFlight } from "../data/datasource/flight.api";
 
 export const ROWS = 12;
 export const COLS = ["A", "B", "C", "D", "E", "F"];
@@ -82,15 +82,40 @@ export type Seat = {
   price: number;
 };
 
-export type BookingStatus =
-  | "BOOKED"
-  | "CANCELLED"
-  | "USED"
-  | "EXPIRED";
-
 export type BookingSeat = {
   row: number;
   col: string;
+};
+
+export type BookingStatus = "confirmed" | "pending" | "cancelled";
+
+export type BookingModel = {
+  id: number;
+  user_id: number;
+  flight_id: number;
+
+  booking_code: string;
+  status: BookingStatus;
+  total_amount: number;
+
+  created_at: string;
+  updated_at: string;
+
+  // Airline
+  airline_name: string;
+  airline_code: string;
+
+  // Departure
+  departure_airport_code: string;
+  departure_airport_city: string;
+
+  // Arrival
+  arrival_airport_code: string;
+  arrival_airport_city: string;
+
+  // Time
+  departure_time: string;
+  arrival_time: string;
 };
 
 export type Booking = {
@@ -124,6 +149,14 @@ export interface FlightSearchResponse {
   totalPages: number;
 }
 
+export interface FlightBookingResponse {
+  data: BookingModel[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export type SeatModel = {
   id: number;
   flight_id: number;
@@ -136,6 +169,19 @@ export type SeatModel = {
 export interface FlightSeatResponse {
   seats: SeatModel[];
 }
+
+export type Passenger = {
+  fullName: string;
+  dateOfBirth: string;
+  idNumber: string;
+  idType: "cccd" | "cmnd" | "passport";
+};
+
+export type CreateBookingPayload = {
+  flightId: number;
+  passengers: Passenger[];
+  seatIds: number[];
+};
 
 export const mapFlight = (item: FlightModel): Flight => {
   return {
@@ -185,6 +231,19 @@ export const mapSeat = (seat: SeatModel): Seat => {
   };
 };
 
+export const mapBooking = (data: BookingModel): Booking => {
+  return {
+    id: data.id,
+    flightCode: data.flight_id.toString(),
+    from: data.departure_airport_city,
+    to: data.arrival_airport_city,
+    departureTime: data.departure_time,
+    totalPrice: data.total_amount,
+    seats: [],
+    status: data.status,
+  };
+};
+
 export const useFlights = (params: SearchFlightParams) => {
   return useQuery<Flight[]>({
     queryKey: ["flights", params.from, params.to, params.date],
@@ -210,5 +269,32 @@ export const useSeat = (flightId: number) => {
     enabled: !!flightId,
     retry: false,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useBookings = () => {
+  return useQuery<Booking[]>({
+    queryKey: ["bookings"],
+    queryFn: getBookingHistory,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useCancelBooking = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Booking, Error, number>({
+    mutationFn: (id: number) => cancelBooking(id),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
+  });
+};
+
+export const useCreateBooking = () => {
+  return useMutation({
+    mutationFn: createBooking,
   });
 };
