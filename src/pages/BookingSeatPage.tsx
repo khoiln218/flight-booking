@@ -115,59 +115,57 @@ export default function BookingSeatPage() {
             </div>
 
             {/* Seat map */}
-            <div>
-                {Array.from({ length: ROWS }, (_, rowIndex) => (
-                    <div
-                        key={rowIndex}
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            marginBottom: 8,
-                        }}
-                    >
-                        {COLS.map((col) => {
-                            const seat = seats.find(
-                                (s) => s.row === rowIndex + 1 && s.col === col
-                            );
+            {Array.from({ length: ROWS }, (_, rowIndex) => (
+                <div
+                    key={rowIndex}
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        marginBottom: "4px",
+                    }}
+                >
+                    {COLS.map((col) => {
+                        const seat = seats.find(
+                            (s) => s.row === rowIndex + 1 && s.col === col
+                        );
 
-                            if (!seat) return null;
+                        if (!seat) return null;
 
-                            return (
-                                <div
-                                    key={seat.id}
-                                    onClick={() => toggleSeat(seat)}
-                                    style={{
-                                        width: 45,
-                                        height: 45,
-                                        margin: 4,
-                                        borderRadius: 6,
-                                        cursor:
-                                            seat.status === "booked"
-                                                ? "not-allowed"
-                                                : "pointer",
-                                        background: getColor(seat.status),
-                                        color:
-                                            seat.status === "selected"
-                                                ? "#fff"
-                                                : "#000",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        fontSize: 10,
-                                    }}
-                                >
-                                    <div>
-                                        {seat.row}
-                                        {seat.col}
-                                    </div>
-                                    <div>{seat.price / 1000}k</div>
+                        return (
+                            <div
+                                key={seat.id}
+                                onClick={() => toggleSeat(seat)}
+                                style={{
+                                    width: 45,
+                                    height: 45,
+                                    margin: 4,
+                                    borderRadius: 6,
+                                    cursor:
+                                        seat.status === "booked"
+                                            ? "not-allowed"
+                                            : "pointer",
+                                    background: getColor(seat.status),
+                                    color:
+                                        seat.status === "selected"
+                                            ? "#fff"
+                                            : "#000",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    fontSize: 10,
+                                }}
+                            >
+                                <div>
+                                    {seat.row}
+                                    {seat.col}
                                 </div>
-                            );
-                        })}
-                    </div>
-                ))}
-            </div>
+                                <div>{seat.price / 1000}k</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ))}
 
             {/* Selected */}
             <div style={styles.selected}>
@@ -212,10 +210,10 @@ const styles: Record<string, CSSProperties> = {
     },
 
     selected: {
-        padding: 20,
+        paddingLeft: 20,
         textAlign: "left",
     },
-    
+
     flightInfo: {
         padding: 20,
         textAlign: "left",

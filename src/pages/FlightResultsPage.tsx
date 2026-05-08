@@ -1,7 +1,6 @@
 import { type JSX } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Nav";
-import { formatDate } from "../utils/AppConverter";
 import { useFlights, type Flight } from "../hooks/useFlights";
 import dayjs from "dayjs";
 
@@ -32,7 +31,7 @@ export default function FlightResultsPage(): JSX.Element {
             {/* 📌 TITLE */}
             <h2 style={styles.title}>
                 Kết quả: {from} → {to}{" "}
-                {date ? `(${formatDate(new Date(date))})` : ""}
+                {date ? `(${dayjs(date).format("DD/MM/YYYY")})` : ""}
             </h2>
 
             <div style={styles.separator}>
@@ -77,7 +76,7 @@ export default function FlightResultsPage(): JSX.Element {
                                     {dayjs(flight.arrival.time).format("HH:mm")}</p>
 
                                 <p>
-                                    📅 {formatDate(new Date(flight.departure.time))}
+                                    📅 {dayjs(flight.departure.time).format("DD/MM/YYYY")}
                                 </p>
 
                                 <p style={styles.price}>

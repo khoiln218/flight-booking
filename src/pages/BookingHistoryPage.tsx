@@ -65,9 +65,9 @@ export default function BookingHistoryPage(): JSX.Element {
 
                             <p>
                                 <b>Ghế:</b>{" "}
-                                {booking.seats
+                                {(booking.seats ?? [])
                                     .map((seat) => `${seat.row}${seat.col}`)
-                                    .join(", ")}
+                                    .join(", ") || "Chưa có ghế"}
                             </p>
 
                             <p>

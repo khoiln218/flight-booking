@@ -107,7 +107,22 @@ export const cancelBooking = async (id: number): Promise<Booking> => {
 };
 
 
-export const createBooking = async (payload: CreateBookingPayload) => {
-    const res = await api.post("/bookings", payload);
-    return res.data;
+export const createBooking = async (payload: CreateBookingPayload): Promise<Booking> => {
+    try {
+        const res = await api.post("/bookings", payload);
+        return mapBooking(res.data.booking);
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const data = error.response?.data;
+
+            const message =
+                data?.errors?.[0]?.message ||
+                data?.message ||
+                "Đặt vé thất bại";
+
+            throw new Error(message);
+        }
+
+        throw error;
+    }
 };

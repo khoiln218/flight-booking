@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Nav";
 import {
@@ -6,13 +6,18 @@ import {
     type SearchFlightParams,
     type SearchItem,
 } from "../hooks/useFlights";
-import { formatDate } from "../utils/AppConverter";
+import dayjs from "dayjs";
 
 export default function FlightSearchPage(): JSX.Element {
     const today = new Date().toISOString().split("T")[0];
     const [date, setDate] = useState(today);
     const [from, setFrom] = useState<string>("");
     const [to, setTo] = useState<string>("");
+
+    const [fromSuggest, setFromSuggest] = useState<typeof AIRPORTS>([]);
+    const [toSuggest, setToSuggest] = useState<typeof AIRPORTS>([]);
+
+    const navigate = useNavigate();
 
     const [history, setHistory] = useState<SearchItem[]>(() => {
         try {
@@ -22,10 +27,28 @@ export default function FlightSearchPage(): JSX.Element {
         }
     });
 
-    const [fromSuggest, setFromSuggest] = useState<typeof AIRPORTS>([]);
-    const [toSuggest, setToSuggest] = useState<typeof AIRPORTS>([]);
+    const fromRef = useRef<HTMLDivElement>(null);
+    const toRef = useRef<HTMLDivElement>(null);
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Node;
+
+            if (fromRef.current && !fromRef.current.contains(target)) {
+                setFromSuggest([]);
+            }
+
+            if (toRef.current && !toRef.current.contains(target)) {
+                setToSuggest([]);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleFromChange = (value: string) => {
         setFrom(value);
@@ -116,11 +139,12 @@ export default function FlightSearchPage(): JSX.Element {
                 <div style={{ position: "relative" }}>
                     <input
                         type="text"
-                        placeholder="Điểm đi"
+                        placeholder="Điểm đi(HAN, DAD,...)"
                         value={from}
                         onChange={(e) =>
                             handleFromChange(e.target.value)
                         }
+                        onBlur={() => setTimeout(() => setFromSuggest([]), 150)}
                         style={styles.input}
                     />
 
@@ -145,11 +169,13 @@ export default function FlightSearchPage(): JSX.Element {
                 <div style={{ position: "relative" }}>
                     <input
                         type="text"
-                        placeholder="Điểm đến"
+                        placeholder="Điểm đến(SGN, CXR,...)"
                         value={to}
                         onChange={(e) =>
                             handleToChange(e.target.value)
                         }
+
+                        onBlur={() => setTimeout(() => setToSuggest([]), 150)}
                         style={styles.input}
                     />
 
@@ -186,54 +212,54 @@ export default function FlightSearchPage(): JSX.Element {
             {history.length > 0 && (
                 <div style={styles.card}>
                     <div style={styles.title}>🕘 Lịch sử tìm kiếm</div>
-                    {(
-                        history.map((item, index) => (
-                            <div
-                                key={index}
-                                style={styles.historyItem}
-                                onMouseEnter={(e) =>
-                                    Object.assign(e.currentTarget.style, styles.historyHover)
-                                }
-                                onMouseLeave={(e) =>
-                                    Object.assign(e.currentTarget.style, {
-                                        background: "#fff",
-                                        transform: "none",
-                                    })
-                                }
-                                onClick={() => handleSelectHistory(item)}
-                            >
-                                <div style={styles.historyLeft}>
-                                    <div style={styles.icon}>✈️</div>
+
+                    {(history.map((item, index) => (
+                        <div
+                            key={index}
+                            style={styles.historyItem}
+                            onMouseEnter={(e) =>
+                                Object.assign(e.currentTarget.style, styles.historyHover)
+                            }
+                            onMouseLeave={(e) =>
+                                Object.assign(e.currentTarget.style, {
+                                    background: "#fff",
+                                    transform: "none",
+                                })
+                            }
+                            onClick={() =>
+                                handleSelectHistory(item)
+                            }
+                        >
+                            <div style={styles.historyLeft}>
+                                <div>✈️</div>
+                                <div>
                                     <div>
-                                        <div style={styles.route}>
-                                            {item.from} → {item.to}
-                                        </div>
-                                        <div style={styles.date}>
-                                            {formatDate(new Date(item.date))}
-                                        </div>
+                                        {item.from} → {item.to}
+                                    </div>
+                                    <div>
+                                        {dayjs(item.date).format("DD/MM/YYYY")}
                                     </div>
                                 </div>
-                                {/* RIGHT - ACTION GROUP */}
-                                <div style={styles.actions}>
-                                    <button
-                                        style={styles.selectBtn}
-                                    >
-                                        Chọn
-                                    </button>
-
-                                    <button
-                                        style={styles.deleteBtn}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteItem(index);
-                                        }}
-                                    >
-                                        X
-                                    </button>
-                                </div>
                             </div>
-                        ))
-                    )}
+
+                            <div style={styles.actions}>
+                                <button
+                                    style={styles.selectBtn}
+                                >
+                                    Chọn
+                                </button>
+                                <button
+                                    style={styles.deleteBtn}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteItem(index);
+                                    }}
+                                >
+                                    X
+                                </button>
+                            </div>
+                        </div>
+                    )))}
                 </div>
             )}
         </div>
@@ -245,20 +271,6 @@ const styles: { [key: string]: React.CSSProperties } = {
         marginTop: "30px",
         marginBottom: "30px",
         textAlign: "center",
-    },
-
-    header: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "4px 20px",
-        background: "#1976d2",
-        color: "#fff",
-    },
-
-    menu: {
-        display: "flex",
-        gap: "10px",
     },
 
     form: {
@@ -321,11 +333,6 @@ const styles: { [key: string]: React.CSSProperties } = {
         gap: "10px",
     },
 
-    icon: {
-        fontSize: "18px",
-        color: "#00a8ff",
-    },
-
     route: {
         fontWeight: "600",
         fontSize: "15px",
@@ -347,6 +354,23 @@ const styles: { [key: string]: React.CSSProperties } = {
         gap: "8px",
     },
 
+    suggestBox: {
+        position: "absolute",
+        background: "#fff",
+        border: "1px solid #eee",
+        borderRadius: "10px",
+        width: "320px",
+        marginTop: "5px",
+        zIndex: 10,
+        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+    },
+
+    suggestItem: {
+        padding: "10px",
+        cursor: "pointer",
+        fontSize: "14px",
+        borderBottom: "1px solid #f3f3f3",
+    },
 
     selectBtn: {
         background: "#00a8ff",
@@ -366,10 +390,5 @@ const styles: { [key: string]: React.CSSProperties } = {
         borderRadius: "8px",
         fontSize: "12px",
         cursor: "pointer",
-    },
-
-    empty: {
-        color: "#999",
-        fontStyle: "italic",
     },
 };

@@ -60,9 +60,9 @@ export default function RegisterPage() {
                 phone: "",
             });
 
-            setTimeout(() => {
-                navigate("/login");
-            }, 500);
+            navigate("/login", {
+                replace: true,
+            });
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 const data = err.response?.data;

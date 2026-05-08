@@ -65,10 +65,10 @@ export default function BookingPaymentPage() {
                         method,
                         booking: data,
                     },
+                    replace: true,
                 });
             },
-            onError: (err) => {
-                console.error("❌ Booking lỗi", err);
+            onError: () => {
                 setLoading(false);
                 alert("Đặt vé thất bại!");
             },

@@ -41,7 +41,9 @@ export default function LoginPage(): JSX.Element {
             setError("");
             const res = await login(form);
             loginUser(res);
-            navigate("/");
+            navigate("/", {
+                replace: true,
+            });
         } catch (err: unknown) {
             handleError(err);
         } finally {

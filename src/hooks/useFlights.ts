@@ -128,7 +128,7 @@ export type BookingModel = {
 
 export type Booking = {
   id: number;
-  flightCode: string;
+  flightCode: number;
   from: string;
   to: string;
   departureTime: string;
@@ -242,7 +242,7 @@ export const mapSeat = (seat: SeatModel): Seat => {
 export const mapBooking = (data: BookingModel): Booking => {
   return {
     id: data.id,
-    flightCode: data.flight_id.toString(),
+    flightCode: data.flight_id,
     from: data.departure_airport_city,
     to: data.arrival_airport_city,
     departureTime: data.departure_time,
