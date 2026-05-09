@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { mapBooking, mapFlight, mapSeat, type Booking, type BookingModel, type CreateBookingPayload, type Flight, type FlightBookingResponse, type FlightSearchResponse, type FlightSeatResponse, type Seat } from "../../hooks/useFlights";
 
 const api = axios.create({
@@ -15,6 +15,21 @@ api.interceptors.request.use((config) => {
 
     return config;
 });
+
+api.interceptors.response.use(
+    (res) => res,
+    (err: AxiosError) => {
+        if (err.response?.status === 401) {
+            localStorage.removeItem("token");
+
+            if (window.location.pathname !== "/login") {
+                window.location.href = "/login";
+            }
+        }
+
+        return Promise.reject(err);
+    }
+);
 
 export const searchFlights = async (
     params: { departure: string; arrival: string; departureDate: string }

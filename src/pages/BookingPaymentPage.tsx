@@ -53,8 +53,6 @@ export default function BookingPaymentPage() {
 
         mutate(payload, {
             onSuccess: (data) => {
-                console.log("✅ Booking thành công", data);
-
                 setLoading(false);
 
                 navigate("/success", {
