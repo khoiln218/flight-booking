@@ -126,3 +126,28 @@ export const createBooking = async (payload: CreateBookingPayload): Promise<Book
         throw error;
     }
 };
+
+export const paymentBooking = async (bookingId: number, method: string, amount: number): Promise<Booking> => {
+    try {
+        const { data } = await api.post<FlightBookingResponse>("/payments", {
+            bookingId,
+            amount,
+            method,
+        });
+
+        return mapBooking(data.data[0]);
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            const data = error.response?.data;
+
+            const message =
+                data?.errors?.[0]?.message ||
+                data?.message ||
+                "Thanh toán thất bại";
+
+            throw new Error(message);
+        }
+
+        throw error;
+    }
+};

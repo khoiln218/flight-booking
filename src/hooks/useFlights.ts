@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { searchFlights } from "../services/flight.service";
-import { cancelBooking, createBooking, getBookingHistory, getSeatsByFlight } from "../data/datasource/flight.api";
+import { cancelBooking, createBooking, getBookingHistory, getSeatsByFlight, paymentBooking } from "../data/datasource/flight.api";
 
 export const ROWS = 12;
 export const COLS = ["A", "B", "C", "D", "E", "F"];
@@ -304,5 +304,19 @@ export const useCancelBooking = () => {
 export const useCreateBooking = () => {
   return useMutation({
     mutationFn: createBooking,
+  });
+};
+
+export const usePayments = () => {
+  return useMutation({
+    mutationFn: ({
+      bookingId,
+      amount,
+      method,
+    }: {
+      bookingId: number;
+      amount: number;
+      method: string;
+    }) => paymentBooking(bookingId, method, amount),
   });
 };
