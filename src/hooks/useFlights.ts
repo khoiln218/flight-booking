@@ -250,7 +250,7 @@ export const mapBooking = (data: BookingModel): Booking => {
     to: data.arrival_airport_city,
     departureTime: data.departure_time,
     totalPrice: data.total_amount,
-    seats: data.seat_numbers.map((seat) => {
+    seats: data.seat_numbers?.map((seat) => {
       const row = parseInt(seat.slice(0, -1));
       const col = seat.slice(-1);
 

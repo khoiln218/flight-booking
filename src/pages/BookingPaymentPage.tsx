@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useCreateBooking, type BookingState, type CreateBookingPayload } from "../hooks/useFlights";
 import Navbar from "../components/Nav";
 import dayjs from "dayjs";
+import axios from "axios";
 
 export default function BookingPaymentPage() {
     const location = useLocation();
@@ -66,9 +67,17 @@ export default function BookingPaymentPage() {
                     replace: true,
                 });
             },
-            onError: () => {
+            onError: (error: unknown) => {
                 setLoading(false);
-                alert("Đặt vé thất bại!");
+
+                if (axios.isAxiosError(error)) {
+                    alert(
+                        error?.response?.data?.message ||
+                        "Đặt vé thất bại!"
+                    );
+                } else {
+                    alert("Đặt vé thất bại!");
+                }
             },
         });
     };
