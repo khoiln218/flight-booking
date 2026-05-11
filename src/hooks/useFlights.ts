@@ -124,6 +124,9 @@ export type BookingModel = {
   // Time
   departure_time: string;
   arrival_time: string;
+
+  // Seat
+  seat_numbers: string[];
 };
 
 export type Booking = {
@@ -247,7 +250,12 @@ export const mapBooking = (data: BookingModel): Booking => {
     to: data.arrival_airport_city,
     departureTime: data.departure_time,
     totalPrice: data.total_amount,
-    seats: [],
+    seats: data.seat_numbers.map((seat) => {
+      const row = parseInt(seat.slice(0, -1));
+      const col = seat.slice(-1);
+
+      return { row, col };
+    }),
     status: data.status,
   };
 };
