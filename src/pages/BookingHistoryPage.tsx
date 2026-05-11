@@ -16,7 +16,11 @@ export default function BookingHistoryPage(): JSX.Element {
     };
 
     const handleCancel = (id: number) => {
-        cancelMutation.mutate(id);
+        const confirmCancel = window.confirm("Bạn có chắc chắn muốn hủy vé không?");
+
+        if (confirmCancel) {
+            cancelMutation.mutate(id);
+        }
     };
 
     if (isLoading) return (<div style={styles.container}>
